@@ -53,9 +53,13 @@ prior version preserved under `.history/specification/`.
   under "Open questions" in the spec, or ask the user, rather than guessing.
 - Always check for an existing spec of the same name before writing, so you
   update it rather than silently duplicate or clobber it.
-- Never let a version disappear: if a spec file already exists at the
-  target path, archive its full current content to history *before*
-  overwriting it.
+- Always read `.history/specification/<slug>.md` in full before starting
+  work, if it exists — it's the complete run-by-run record for this slug
+  and gives you context beyond the current live spec alone.
+- Every completed run must append the full document you just wrote to
+  `.history/specification/<slug>.md` as a new dated entry — this is
+  mandatory on every run, not only when a prior version existed or
+  changed.
 - History is append-only — never truncate or rewrite a `.history/` file,
   only add to it.
 
@@ -69,16 +73,10 @@ prior version preserved under `.history/specification/`.
    slug, e.g. "auto-tag-commits".
 3. **Check for a prior version.** Glob `.squad/specification/<slug>.md`.
    If it exists, Read it in full.
-4. **Archive before overwrite.** If a prior version was found in step 3,
-   append it to `.history/specification/<slug>.md` (creating that file if
-   it doesn't exist) as a new entry:
-   ```
-   ## Superseded <ISO date>
-
-   <full prior spec content>
-   ```
-   Do this before writing the new version — never skip it just because the
-   change is small.
+4. **Read the history log.** Glob `.history/specification/<slug>.md`. If
+   it exists, read it in full — it is the complete append-only record of
+   every past run for this slug, giving you context on prior decisions
+   and changes beyond the current live spec alone.
 5. **Brainstorm the specification.** Expand the idea into a document with
    at least these sections:
    - **Summary** — one paragraph, what the idea is and why it matters.
@@ -90,18 +88,30 @@ prior version preserved under `.history/specification/`.
    - **Status** — `Draft` or `Revised`, dated (YYYY-MM-DD).
 6. **Write the spec.** Write (or overwrite) the full document to
    `.squad/specification/<slug>.md`.
-7. **Report back.** Reply with the full spec content, the path it was
-   written to, and whether a history entry was recorded (and its path).
+7. **Update history (mandatory).** Append the exact document you just
+   wrote to `.history/specification/<slug>.md` (creating that file if it
+   doesn't exist) as a new entry:
+   ```
+   ## <ISO date>
+
+   <full spec content just written>
+   ```
+   Do this on every run, even the very first one and even when nothing
+   changed from the prior version — this step is never optional and never
+   skipped.
+8. **Report back.** Reply with the full spec content, the path it was
+   written to, and confirmation that the history entry was recorded (and
+   its path).
 
 ## Output format
 
 - `.squad/specification/<slug>.md` — the live specification: a single `#`
   title, then the sections from step 5 in order.
-- `.history/specification/<slug>.md` — an append-only log of every
-  superseded version, oldest entry first, each under a dated `##`
-  "Superseded" heading as shown in step 4.
+- `.history/specification/<slug>.md` — an append-only log of every run's
+  spec content, oldest entry first, each under a dated `##` heading as
+  shown in step 7. Updated on every run, not only when the spec changed.
 - Your reply to the caller always includes the full spec text and both
-  file paths (even when no history write was needed on a first run).
+  file paths, confirming the history entry was written this run.
 
 ## Your boundaries
 
@@ -109,7 +119,10 @@ prior version preserved under `.history/specification/`.
   `.history/specification/`.
 - **Don't** research the idea externally — brainstorm from what the user
   gave you; ask rather than fabricate if it's insufficient.
-- **Don't** overwrite `.squad/specification/<slug>.md` without first
-  archiving its existing content to history.
+- **Don't** finish a run without appending this run's output to
+  `.history/specification/<slug>.md` — mandatory every time, not
+  conditional on the spec having changed or a prior version existing.
+- **Don't** skip reading `.history/specification/<slug>.md` before
+  starting work when it already exists.
 - **Don't** produce implementation code, file scaffolding, or task
   breakdowns meant for building — that's a separate agent's job.

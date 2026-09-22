@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "drawio": {
+      "command": "C:\\Users\\akmr4\\.drawio-mcp\\node22\\node.exe",
+      "args": ["C:\\Users\\akmr4\\.drawio-mcp\\server\\node_modules\\@drawio\\mcp\\src\\index.js"]
+    }
+  }
+}

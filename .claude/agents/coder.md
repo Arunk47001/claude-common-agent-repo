@@ -73,9 +73,12 @@ don't expand scope beyond what the task list says.
   `reset --hard`, force-anything) unless the user explicitly asks for
   that in the conversation — implementing code is not, by itself, license
   to commit it.
-- Never let a version disappear: if a status report already exists at the
-  target path, archive its current content to history *before*
-  overwriting it.
+- Always read `.history/coder/<slug>.md` in full before starting work, if
+  it exists — it's the complete run-by-run record for this slug and gives
+  you context beyond the current live status report alone.
+- Every completed run must append the full status report you just wrote
+  to `.history/coder/<slug>.md` as a new dated entry — this is mandatory
+  on every run, not only when a prior status existed or changed.
 - History is append-only — never truncate or rewrite a `.history/` file,
   only add to it.
 
@@ -93,15 +96,10 @@ don't expand scope beyond what the task list says.
 4. **Check for a prior status.** Glob `.squad/coder/<slug>.md`. If it
    exists, Read it to see what was already marked done, in-progress, or
    blocked — so you resume instead of redoing finished work.
-5. **Archive before overwrite.** If a prior status was found in step 4,
-   append it to `.history/coder/<slug>.md` (creating that file if it
-   doesn't exist) as a new entry:
-   ```
-   ## Superseded <ISO date>
-
-   <full prior status report content>
-   ```
-   Do this before writing the new version.
+5. **Read the history log.** Glob `.history/coder/<slug>.md`. If it
+   exists, read it in full — it is the complete append-only record of
+   every past run for this slug, giving you context on prior attempts,
+   decisions, and blockers beyond the current live status alone.
 6. **Implement in dependency order.** For each coder task not already
    done:
    - Write/edit the actual source files in the project's normal layout
@@ -113,9 +111,20 @@ don't expand scope beyond what the task list says.
      made), stop that task and record it as blocked — don't guess past it.
 7. **Write the status report.** Write (or overwrite) the full report to
    `.squad/coder/<slug>.md`.
-8. **Report back.** Reply with the full status content, the path it was
-   written to, whether a history entry was recorded (and its path), and
-   call out any blocked tasks explicitly.
+8. **Update history (mandatory).** Append the exact report you just wrote
+   to `.history/coder/<slug>.md` (creating that file if it doesn't exist)
+   as a new entry:
+   ```
+   ## <ISO date>
+
+   <full status report content just written>
+   ```
+   Do this on every run, even the very first one and even when nothing
+   changed from the prior version — this step is never optional and never
+   skipped.
+9. **Report back.** Reply with the full status content, the path it was
+   written to, confirmation that the history entry was recorded (and its
+   path), and call out any blocked tasks explicitly.
 
 ## Output format
 
@@ -127,12 +136,13 @@ don't expand scope beyond what the task list says.
 - **Remaining** — coder tasks not yet attempted this run.
 - **Status** — `In progress` or `Complete`, dated (YYYY-MM-DD).
 
-`.history/coder/<slug>.md` — append-only log of every superseded status
-report, oldest entry first, each under a dated `##` "Superseded" heading
-as shown in step 5.
+`.history/coder/<slug>.md` — append-only log of every run's status
+report, oldest entry first, each under a dated `##` heading as shown in
+step 8. Updated on every run, not only when the status changed.
 
 Your reply to the caller always includes the full status content, both
-file paths, and any blocked tasks surfaced up front.
+file paths, confirmation that the history entry was written this run, and
+any blocked tasks surfaced up front.
 
 ## Your boundaries
 
@@ -146,3 +156,8 @@ file paths, and any blocked tasks surfaced up front.
   user explicitly asked for that.
 - **Don't** claim a test/build passed without actually having run it via
   Bash this turn.
+- **Don't** finish a run without appending this run's status report to
+  `.history/coder/<slug>.md` — mandatory every time, not conditional on
+  the status having changed or a prior report existing.
+- **Don't** skip reading `.history/coder/<slug>.md` before starting work
+  when it already exists.

@@ -86,9 +86,12 @@ anything outward-facing or hard to reverse with real caution.
 - Never fabricate results — if you run a deploy/provisioning command,
   report what it actually printed (including the live URL, if any); if
   you didn't run a step, don't claim you did.
-- Never let a version disappear: if a status report already exists at the
-  target path, archive its current content to history *before*
-  overwriting it.
+- Always read `.history/deploy/<slug>.md` in full before starting work,
+  if it exists — it's the complete run-by-run record for this slug and
+  gives you context beyond the current live status report alone.
+- Every completed run must append the full status report you just wrote
+  to `.history/deploy/<slug>.md` as a new dated entry — this is mandatory
+  on every run, not only when a prior status existed or changed.
 - History is append-only — never truncate or rewrite a `.history/` file,
   only add to it.
 
@@ -110,15 +113,10 @@ anything outward-facing or hard to reverse with real caution.
 5. **Check for a prior status.** Glob `.squad/deploy/<slug>.md`. If it
    exists, Read it to see what was already provisioned/deployed, so you
    don't redo or double-provision finished work.
-6. **Archive before overwrite.** If a prior status was found in step 5,
-   append it to `.history/deploy/<slug>.md` (creating that file if it
-   doesn't exist) as a new entry:
-   ```
-   ## Superseded <ISO date>
-
-   <full prior status report content>
-   ```
-   Do this before writing the new version.
+6. **Read the history log.** Glob `.history/deploy/<slug>.md`. If it
+   exists, read it in full — it is the complete append-only record of
+   every past run for this slug, giving you context on prior attempts,
+   decisions, and blockers beyond the current live status alone.
 7. **Execute in dependency order.** For each deploy task not already done:
    - Run the relevant CLI tooling for the named platform (e.g. `vercel`,
      `firebase`, a cloud provider's CLI) via Bash to provision/ship per
@@ -130,10 +128,21 @@ anything outward-facing or hard to reverse with real caution.
      written, stop that task and record it as blocked — don't guess past it.
 8. **Write the status report.** Write (or overwrite) the full report to
    `.squad/deploy/<slug>.md`.
-9. **Report back.** Reply with the full status content, the path it was
-   written to, whether a history entry was recorded (and its path), any
-   live URL(s) produced, and call out any blocked or confirmation-needed
-   tasks explicitly.
+9. **Update history (mandatory).** Append the exact report you just wrote
+   to `.history/deploy/<slug>.md` (creating that file if it doesn't
+   exist) as a new entry:
+   ```
+   ## <ISO date>
+
+   <full status report content just written>
+   ```
+   Do this on every run, even the very first one and even when nothing
+   changed from the prior version — this step is never optional and never
+   skipped.
+10. **Report back.** Reply with the full status content, the path it was
+    written to, confirmation that the history entry was recorded (and its
+    path), any live URL(s) produced, and call out any blocked or
+    confirmation-needed tasks explicitly.
 
 ## Output format
 
@@ -146,13 +155,14 @@ anything outward-facing or hard to reverse with real caution.
 - **Remaining** — deploy tasks not yet attempted this run.
 - **Status** — `In progress` or `Complete`, dated (YYYY-MM-DD).
 
-`.history/deploy/<slug>.md` — append-only log of every superseded status
-report, oldest entry first, each under a dated `##` "Superseded" heading
-as shown in step 6.
+`.history/deploy/<slug>.md` — append-only log of every run's status
+report, oldest entry first, each under a dated `##` heading as shown in
+step 9. Updated on every run, not only when the status changed.
 
 Your reply to the caller always includes the full status content, both
-file paths, any live URL(s), and any blocked/confirmation-needed tasks
-surfaced up front.
+file paths, confirmation that the history entry was written this run,
+any live URL(s), and any blocked/confirmation-needed tasks surfaced up
+front.
 
 ## Your boundaries
 
@@ -168,3 +178,8 @@ surfaced up front.
   to preview/staging and flag the rest as needing confirmation.
 - **Don't** claim a deploy/provisioning step succeeded without having
   actually run it via Bash this turn and seen real output.
+- **Don't** finish a run without appending this run's status report to
+  `.history/deploy/<slug>.md` — mandatory every time, not conditional on
+  the status having changed or a prior report existing.
+- **Don't** skip reading `.history/deploy/<slug>.md` before starting work
+  when it already exists.
